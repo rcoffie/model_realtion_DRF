@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework import generics
-from api.serializer import UserSerializer, PostSerializer, CommentSerializer
+from api.serializer import UserSerializer, PostSerializer, CommentSerializer, CategorySerializer
 from django.contrib.auth.models import User
-from api.models import Post, Comment
+from api.models import Post, Comment, Category
 from rest_framework import generics, permissions
 from .permissions import IsOwnerOrReadOnly
 
@@ -38,4 +38,18 @@ class CommentList(generics.ListCreateAPIView):
 class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    permissions_classes = [permissions.IsAuthenticatedOrReadOnly,IsOwnerOrReadOnly]
+
+
+class CategoryList(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permissions_classes = [permissions.IsAuthenticatedOrReadOnly]
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class CategoryDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = PostSerializer
     permissions_classes = [permissions.IsAuthenticatedOrReadOnly,IsOwnerOrReadOnly]
